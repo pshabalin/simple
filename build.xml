@@ -3,32 +3,76 @@
     <loadproperties srcFile="build.properties"/>
     <property name="buildDir" value="build"/>
     <property name="classesDir" value="classes"/>
+    <property name="libDir" value="ivy/lib/main"/>
+    <property name="buildInfoFile" value="${buildDir}/build.txt"/>
+
+    <path id="main.classpath">
+        <fileset dir="${libDir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="test.classpath">
+        <fileset dir="ivy/lib/test">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="clean-lib">
+        <delete dir="ivy/lib"/>
+    </target>
 
     <target name="clean">
-        <delete dir="lib"/>
         <delete dir="${buildDir}"/>
     </target>
 
-
-    <target name="fetch-jars" depends="install-ivy">
-        <ivy:retrieve pattern="lib/[conf]/[artifact]-[type]-[revision].[ext]" symlink="true"/>
-    </target>
-
     <target name="install-ivy">
-        <mkdir dir="lib"/>
-        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" dest="lib/ivy.jar" usetimestamp="true"/>
+        <mkdir dir="ivy"/>
+        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" dest="ivy/ivy.jar" usetimestamp="true"/>
         <path id="ivy.lib.path">
-            <fileset dir="lib" includes="*.jar"/>
+            <fileset dir="ivy" includes="*.jar"/>
         </path>
         <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
     </target>
 
+    <target name="fetch-jars" depends="install-ivy">
+        <mkdir dir="ivy/lib"/>
+        <ivy:retrieve pattern="ivy/lib/[conf]/[artifact]-[type]-[revision].[ext]" symlink="true"/>
+    </target>
+
     <target name="prepare">
         <mkdir dir="${buildDir}"/>
+        <mkdir dir="${buildDir}/${classesDir}"/>
     </target>
 
     <target name="compile" depends="prepare">
-        <javac srcdir="src" destdir="${buildDir}/${classesDir}"/>
+        <javac srcdir="src" destdir="${buildDir}/${classesDir}" target="${target.version}" includeAntRuntime="false">
+            <classpath refid="main.classpath"/>
+        </javac>
     </target>
 
+    <target name="jar" depends="compile">
+        <jar destfile="${buildDir}/${ant.project.name}-${project.version}.jar" basedir="${buildDir}/${classesDir}"/>
+    </target>
+
+    <target name="buildInfo" depends="prepare">
+        <tstamp>
+            <format property="BUILD_TIME" pattern="MM/dd/yyyy hh:mm aa" locale="en,US"/>
+        </tstamp>
+        <echo file="${buildInfoFile}" append="no" message="Build Number: ${build.number}${line.separator}" encoding="UTF-8"/>
+        <echo file="${buildInfoFile}" append="yes" message="Build Date: ${BUILD_TIME}${line.separator}"/>
+    </target>
+
+    <target name="zip" depends="jar">
+        <zip destfile="${buildDir}/${ant.project.name}-${project.version}.zip" >
+            <zipfileset dir="${libDir}" prefix="lib" includes="*.jar" excludes="*-javadoc-*.jar,*-source-*.jar"/>
+            <zipfileset dir="${buildDir}" prefix="lib" includes="*.jar"/>
+            <zipfileset dir="webapp" prefix="webapp"/>
+            <zipfileset dir="app" excludes="run.sh"/>
+            <zipfileset dir="app" includes="run.sh" filemode="754"/>
+            <zipfileset file="${buildInfoFile}" prefix="webapp"/>
+        </zip>
+    </target>
+
+    <target name="build" depends="clean-lib, fetch-jars, clean, zip"/>
 </project>

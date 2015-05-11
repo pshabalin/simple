@@ -16,8 +16,4 @@ public class BeanRepo {
     public List<Bean> getAll() {
         return Arrays.asList(new Bean("key 1", "value 1"), new Bean("key 2", "value 2"));
     }
-
-    public void init(int x) {
-        log.debug("x {}", x);
-    }
 }

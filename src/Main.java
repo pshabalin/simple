@@ -5,6 +5,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -19,6 +22,13 @@ public class Main {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.register(RepositoryConfig.class);
         rootContext.register(ServletConf.class);
+        ConfigurableEnvironment environment = rootContext.getEnvironment();
+        MutablePropertySources sources = environment.getPropertySources();
+        for (String activeProfile : environment.getActiveProfiles()) {
+            sources.addLast(new ResourcePropertySource("classpath:/application-" + activeProfile + ".properties"));
+        }
+        sources.addLast(new ResourcePropertySource("classpath:/application.properties"));
+
 
         ServletHolder servletHolder = new ServletHolder("dispatcher", new DispatcherServlet(rootContext));
 
@@ -33,5 +43,4 @@ public class Main {
         log.debug("Done");
         server.join();
     }
-
 }

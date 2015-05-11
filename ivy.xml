@@ -1,32 +1,27 @@
 <ivy-module version="2.0">
     <info organisation="org.ebt" module="simple"/>
 
-    <configurations>
-        <conf name="main" description="Default configuration"/>
-        <conf name="test" description="Testing configuration"/>
+    <configurations defaultconf="main" defaultconfmapping="main->default,javadoc,sources;test->default">
+        <conf name="main" />
+        <conf name="test"/>
     </configurations>
 
     <dependencies>
         <dependency org="org.eclipse.jetty" name="jetty-webapp" rev="${jetty.version}"/>
         <dependency org="org.eclipse.jetty" name="jetty-servlets" rev="${jetty.version}"/>
 
-        <dependency org="org.springframework" name="spring-web" rev="${spring.version}" />
-        <dependency org="org.springframework" name="spring-webmvc" rev="${spring.version}" />
+        <dependency org="org.springframework" name="spring-core" rev="${spring.version}"/>
+        <dependency org="org.springframework" name="spring-web" rev="${spring.version}"/>
+        <dependency org="org.springframework" name="spring-webmvc" rev="${spring.version}"/>
+        <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.3"/>
 
-        <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j.version}" />
-        <dependency org="org.slf4j" name="log4j-over-slf4j" rev="${slf4j.version}" />
-        <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${slf4j.version}" />
-        <dependency org="ch.qos.logback" name="logback-classic" rev="${logback.version}" />
+        <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j.version}"/>
+        <dependency org="org.slf4j" name="log4j-over-slf4j" rev="${slf4j.version}"/>
+        <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${slf4j.version}"/>
+        <dependency org="ch.qos.logback" name="logback-classic" rev="${logback.version}"/>
         <dependency org="ch.qos.logback" name="logback-core" rev="${logback.version}"/>
 
-        <dependency org="org.testng" name="testng" rev="6.8.21" conf="test->default"/>
-        <dependency org="org.mockito" name="mockito-core" rev="1.10.19" conf="test->default"/>
-
-        <exclude org="log4j"/>
-        <exclude org="commons-logging"/>
-        <exclude org="org.apache.tiles"/>
-        <exclude org="org.apache.velocity"/>
-        <exclude org="org.freemarker"/>
-
-    </dependencies>
+        <dependency org="org.testng" name="testng" rev="6.8.21" conf="test"/>
+        <dependency org="org.mockito" name="mockito-core" rev="1.10.19" conf="test"/>
+     </dependencies>
 </ivy-module>
