@@ -1,0 +1,34 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="simple" default="fetch-jars">
+
+    <loadproperties srcFile="build.properties"/>
+    <property name="buildDir" value="build"/>
+    <property name="classesDir" value="classes"/>
+
+    <target name="clean">
+        <delete dir="lib"/>
+        <delete dir="${buildDir}"/>
+    </target>
+
+
+    <target name="fetch-jars" depends="install-ivy">
+        <ivy:retrieve pattern="lib/[conf]/[artifact]-[type]-[revision].[ext]" symlink="true"/>
+    </target>
+
+    <target name="install-ivy">
+        <mkdir dir="lib"/>
+        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" dest="lib/ivy.jar" usetimestamp="true"/>
+        <path id="ivy.lib.path">
+            <fileset dir="lib" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>
+
+    <target name="prepare">
+        <mkdir dir="${buildDir}"/>
+    </target>
+
+    <target name="compile" depends="prepare">
+        <javac srcdir="src" destdir="${buildDir}/${classesDir}"/>
+    </target>
+
+</project>

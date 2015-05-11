@@ -1,0 +1,7 @@
+out
+lib
+build
+*.iml
+*.ipr
+*.iws
+.DS_Store
