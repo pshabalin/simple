@@ -1,4 +1,4 @@
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="simple" default="fetch-jars">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="simple" default="configure" xmlns:if="ant:if" xmlns:unless="ant:unless">
 
     <loadproperties srcFile="build.properties"/>
     <property name="buildDir" value="build"/>
@@ -18,13 +18,12 @@
         </fileset>
     </path>
 
-    <target name="clean-lib">
-        <delete dir="ivy/lib"/>
-    </target>
-
     <target name="clean">
+        <delete dir="ivy/lib"/>
         <delete dir="${buildDir}"/>
     </target>
+
+    <!-- Dependency Management -->
 
     <target name="install-ivy">
         <mkdir dir="ivy"/>
@@ -35,10 +34,12 @@
         <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
     </target>
 
-    <target name="fetch-jars" depends="install-ivy">
+    <target name="resolve-dependencies" depends="install-ivy">
         <mkdir dir="ivy/lib"/>
         <ivy:retrieve pattern="ivy/lib/[conf]/[artifact]-[type]-[revision].[ext]" symlink="true"/>
     </target>
+
+    <!-- Build  -->
 
     <target name="prepare">
         <mkdir dir="${buildDir}"/>
@@ -55,24 +56,30 @@
         <jar destfile="${buildDir}/${ant.project.name}-${project.version}.jar" basedir="${buildDir}/${classesDir}"/>
     </target>
 
-    <target name="buildInfo" depends="prepare">
-        <tstamp>
-            <format property="BUILD_TIME" pattern="MM/dd/yyyy hh:mm aa" locale="en,US"/>
-        </tstamp>
-        <echo file="${buildInfoFile}" append="no" message="Build Number: ${build.number}${line.separator}" encoding="UTF-8"/>
-        <echo file="${buildInfoFile}" append="yes" message="Build Date: ${BUILD_TIME}${line.separator}"/>
-    </target>
-
     <target name="zip" depends="jar">
+        <mkdir dir="${buildDir}/logs"/>
         <zip destfile="${buildDir}/${ant.project.name}-${project.version}.zip" >
             <zipfileset dir="${libDir}" prefix="lib" includes="*.jar" excludes="*-javadoc-*.jar,*-source-*.jar"/>
             <zipfileset dir="${buildDir}" prefix="lib" includes="*.jar"/>
             <zipfileset dir="webapp" prefix="webapp"/>
-            <zipfileset dir="app" excludes="run.sh"/>
-            <zipfileset dir="app" includes="run.sh" filemode="754"/>
-            <zipfileset file="${buildInfoFile}" prefix="webapp"/>
+            <zipfileset dir="runtime" includes="application.properties,logback.xml" prefix="config"/>
+            <zipfileset dir="${buildDir}/logs" prefix="logs"/>
+            <zipfileset dir="runtime" includes="run.sh" filemode="754"/>
         </zip>
     </target>
 
-    <target name="build" depends="clean-lib, fetch-jars, clean, zip"/>
+    <target name="build"  depends="clean, resolve-dependencies, zip"/>
+
+    <!-- Prepare Project for IDE -->
+
+    <target name="create-runtime">
+        <mkdir dir="config"/>
+        <mkdir dir="data"/>
+        <available file="config/application.properties" property="skipProp"/>
+        <copy file="runtime/application.properties" todir="config" unless:true="${skipProp}"/>
+        <available file="config/logback.xml" property="skipLogback"/>
+        <copy file="runtime/logback.xml" todir="config" unless:true="${skipLogback}"/>
+    </target>
+
+    <target name="configure" depends="clean, resolve-dependencies, create-runtime"/>
 </project>

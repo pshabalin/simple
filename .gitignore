@@ -1,6 +1,8 @@
+build
+config
+data
 out
 ivy
-build
 *.iml
 *.ipr
 *.iws

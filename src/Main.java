@@ -11,24 +11,25 @@ import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 public class Main {
 
     static final Logger log = LoggerFactory.getLogger(Main.class);
 
 
     public static void main(String[] args) throws Exception {
-        log.debug("Starting web server");
+        log.info("Starting web server");
+        Instant starTime = Instant.now();
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.register(RepositoryConfig.class);
         rootContext.register(ServletConf.class);
         ConfigurableEnvironment environment = rootContext.getEnvironment();
         MutablePropertySources sources = environment.getPropertySources();
-        for (String activeProfile : environment.getActiveProfiles()) {
-            sources.addLast(new ResourcePropertySource("classpath:/application-" + activeProfile + ".properties"));
-        }
-        sources.addLast(new ResourcePropertySource("classpath:/application.properties"));
-
+        sources.addLast(new ResourcePropertySource("file:config/application.properties"));
 
         ServletHolder servletHolder = new ServletHolder("dispatcher", new DispatcherServlet(rootContext));
 
@@ -40,7 +41,7 @@ public class Main {
         Server server = new Server(8080);
         server.setHandler(webapp);
         server.start();
-        log.debug("Done");
+        log.info("Done in {} seconds", Duration.between(starTime, Instant.now()).get(ChronoUnit.SECONDS));
         server.join();
     }
 }
