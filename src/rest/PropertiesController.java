@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @Controller
-@RequestMapping("/version")
-public class EnvironmentController {
+@RequestMapping("/properties")
+public class PropertiesController {
 
     @Autowired
     Environment env;
