@@ -8,6 +8,7 @@
         </encoder>
     </appender>
 
+    <!--
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/app.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -15,7 +16,6 @@
         </encoder>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rollover daily -->
             <fileNamePattern>logs/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
@@ -23,12 +23,15 @@
         </rollingPolicy>
     </appender>
 
+    -->
 
     <logger name="org.eclipse" level="INFO"/>
     <logger name="org.springframework" level="INFO"/>
+    <logger name="org.flywaydb" level="INFO"/>
+
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
+        <!-- appender-ref ref="FILE" / -->
     </root>
 </configuration>

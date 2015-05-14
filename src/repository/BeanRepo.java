@@ -19,7 +19,7 @@ public class BeanRepo {
     static final Logger log = LoggerFactory.getLogger(BeanRepo.class);
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    JdbcTemplate jdbcTemplate;
 
     public List<Bean> getAll() {
         return jdbcTemplate.query("select NAME, VALUE from BEAN", (rs, rowNum) -> new Bean(rs.getString("NAME"), rs.getString("VALUE")));

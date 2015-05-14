@@ -20,14 +20,6 @@ public class ServletConf extends WebMvcConfigurerAdapter {
     MultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
     }
-    @Bean
-    ViewResolver internalViewResolver() {
-        // the view resolver bean ...
-        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-        resolver.setPrefix("/WEB-INF/jsp/");
-        resolver.setSuffix(".jsp");
-        return resolver;
-    }
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {

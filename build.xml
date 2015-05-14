@@ -12,15 +12,10 @@
         </fileset>
     </path>
 
-    <path id="test.classpath">
-        <fileset dir="ivy/lib/test">
-            <include name="**/*.jar"/>
-        </fileset>
-    </path>
-
     <target name="clean">
-        <delete dir="ivy/lib"/>
+        <delete dir="ivy"/>
         <delete dir="${buildDir}"/>
+        <delete dir="data"/>
     </target>
 
     <!-- Dependency Management -->
@@ -46,10 +41,37 @@
         <mkdir dir="${buildDir}/${classesDir}"/>
     </target>
 
-    <target name="compile" depends="prepare">
+    <target name="compile" depends="prepare, resolve-dependencies">
         <javac srcdir="src" destdir="${buildDir}/${classesDir}" target="${target.version}" includeAntRuntime="false">
             <classpath refid="main.classpath"/>
         </javac>
+    </target>
+
+    <target name="test" depends="compile">
+        <path id="test.compile">
+            <path refid="main.classpath"/>
+            <fileset dir="ivy/lib/test">
+                <include name="**/*.jar"/>
+            </fileset>
+            <pathelement location="${buildDir}/${classesDir}"/>
+        </path>
+
+        <mkdir dir="${buildDir}/test-classes"/>
+
+        <javac srcdir="test" destdir="${buildDir}/test-classes" target="${target.version}" includeAntRuntime="false">
+            <classpath refid="test.compile"/>
+        </javac>
+
+        <taskdef resource="testngtasks" classpath="ivy/lib/test/testng-jar-${testng.version}.jar"/>
+
+        <path id="test">
+            <path refid="test.compile"/>
+            <pathelement location="${buildDir}/test-classes"/>
+        </path>
+
+         <testng classpathref="test" outputDir="${buildDir}/test" haltOnfailure="true">
+             <classfileset dir="${buildDir}/test-classes" includes="**/*.class" />
+         </testng>
     </target>
 
     <target name="jar" depends="compile">
@@ -58,12 +80,15 @@
 
     <target name="zip" depends="jar">
         <mkdir dir="${buildDir}/logs"/>
+        <mkdir dir="${buildDir}/data"/>
         <zip destfile="${buildDir}/${ant.project.name}-${project.version}.zip" >
             <zipfileset dir="${libDir}" prefix="lib" includes="*.jar" excludes="*-javadoc-*.jar,*-source-*.jar"/>
             <zipfileset dir="${buildDir}" prefix="lib" includes="*.jar"/>
+            <zipfileset dir="sql" prefix="sql"/>
             <zipfileset dir="webapp" prefix="webapp"/>
             <zipfileset dir="runtime" includes="application.properties,logback.xml" prefix="config"/>
             <zipfileset dir="${buildDir}/logs" prefix="logs"/>
+            <zipfileset dir="${buildDir}/data" prefix="data"/>
             <zipfileset dir="runtime" includes="run.sh" filemode="754"/>
         </zip>
     </target>
