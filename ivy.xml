@@ -17,6 +17,9 @@
         <dependency org="org.springframework" name="spring-webmvc" rev="${spring.version}"/>
         <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.3"/>
 
+        <!-- API Documentation -->
+        <dependency org="io.springfox" name="springfox-swagger2" rev="2.0.0"/>
+
         <!-- Logging -->
         <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j.version}"/>
         <dependency org="org.slf4j" name="log4j-over-slf4j" rev="${slf4j.version}"/>

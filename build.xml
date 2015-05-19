@@ -85,7 +85,6 @@
             <zipfileset dir="${libDir}" prefix="lib" includes="*.jar" excludes="*-javadoc-*.jar,*-source-*.jar"/>
             <zipfileset dir="${buildDir}" prefix="lib" includes="*.jar"/>
             <zipfileset dir="sql" prefix="sql"/>
-            <zipfileset dir="webapp" prefix="webapp"/>
             <zipfileset dir="runtime" includes="application.properties,logback.xml" prefix="config"/>
             <zipfileset dir="${buildDir}/logs" prefix="logs"/>
             <zipfileset dir="${buildDir}/data" prefix="data"/>

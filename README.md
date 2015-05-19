@@ -18,7 +18,6 @@ Checkout the project. Directories and files:
   * runtime - configuration and run files templates
   * sql - flywaydb's scripts
   * src and test - Java files
-  * webapp - web assets - CSS, JS, HTML, etc
   * build.properties, ivy.xml and build.xml - build files
   * REAMDE.md - this document
 

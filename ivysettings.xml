@@ -1,0 +1,11 @@
+<ivysettings>
+    <settings defaultResolver="chain" />
+    <resolvers>
+        <ibiblio name="maven2" m2compatible="true"/>
+        <ibiblio name="jcenter" root="https://jcenter.bintray.com/" m2compatible="true" />
+        <chain name="chain" returnFirst="true">
+            <resolver ref="maven2"/>
+            <resolver ref="jcenter"/>
+        </chain>
+    </resolvers>
+</ivysettings>

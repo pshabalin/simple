@@ -4,7 +4,11 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import config.RepositoryConfig;
 import config.ServletConf;
+import org.eclipse.jetty.server.HandlerContainer;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -39,13 +43,15 @@ public class Main {
 
         ServletHolder servletHolder = new ServletHolder("dispatcher", new DispatcherServlet(rootContext));
 
-        WebAppContext webapp = new WebAppContext();
-        webapp.setContextPath("/");
-        webapp.setWar("webapp");
-        webapp.addServlet(servletHolder, "/rest/*");
+        ServletHandler handler = new ServletHandler();
+        handler.addServletWithMapping(servletHolder, "/*");
+
+        ServletContextHandler contextHandler = new ServletContextHandler();
+        contextHandler.setContextPath("/");
+        contextHandler.setHandler(handler);
 
         Server server = new Server(8080);
-        server.setHandler(webapp);
+        server.setHandler(contextHandler);
         server.start();
         log.info("Web Server started in {} seconds", Duration.between(starTime, Instant.now()).get(ChronoUnit.SECONDS));
         server.join();

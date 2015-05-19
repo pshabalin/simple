@@ -1,0 +1,11 @@
+build
+clean
+compile
+configure
+create-runtime
+install-ivy
+jar
+prepare
+resolve-dependencies
+test
+zip

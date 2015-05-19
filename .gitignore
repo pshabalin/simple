@@ -3,6 +3,7 @@ config
 data
 out
 ivy
+webapp
 *.iml
 *.ipr
 *.iws
