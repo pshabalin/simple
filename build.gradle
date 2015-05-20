@@ -1,0 +1,97 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+version = '1.0'
+
+def jettyVersion = "9.2.10.v20150310"
+def springVersion = "4.1.6.RELEASE"
+def slf4jVersion = "1.7.12"
+def logbackVersion = "1.1.3"
+
+
+sourceSets.main.java.srcDirs = ['src']
+sourceSets.test.java.srcDirs = ['test']
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jcenter.bintray.com/"
+    }
+}
+dependencies {
+    // Jetty
+    compile 'org.eclipse.jetty:jetty-webapp:' + jettyVersion,
+            'org.eclipse.jetty:jetty-servlets:' + jettyVersion
+
+    //Dependency Management and Web framework
+    compile 'org.springframework:spring-core:' + springVersion,
+            'org.springframework:spring-web:' + springVersion,
+            'org.springframework:spring-webmvc:' + springVersion,
+            'com.fasterxml.jackson.core:jackson-databind:2.5.3'
+
+    //API Documentation
+    compile 'io.springfox:springfox-swagger2:2.0.0'
+
+     //Logging
+    compile 'org.slf4j:slf4j-api:' + slf4jVersion,
+            'org.slf4j:log4j-over-slf4j:' + slf4jVersion,
+            'org.slf4j:jcl-over-slf4j:' + slf4jVersion,
+            'ch.qos.logback:logback-classic:' + logbackVersion,
+            'ch.qos.logback:logback-core:' + logbackVersion
+
+    //Database
+    compile 'com.h2database:h2:1.4.187',
+            'org.apache.commons:commons-dbcp2:2.1',
+            'org.springframework:spring-jdbc:' + springVersion,
+            'org.flywaydb:flyway-core:3.2.1'
+
+
+    //Utilities
+    compile 'com.google.guava:guava:18.0'
+
+    //Test
+    testCompile 'org.testng:testng:6.8.21',
+                'org.mockito:mockito-core:1.10.19'
+}
+
+test {
+    useTestNG()
+}
+
+task prepareDist {
+    doLast {
+        ['data', 'logs'].each() {
+            mkdir("build/${it}")
+        };
+    }
+}
+
+task buildTar(type: Tar, dependsOn: [assemble, prepareDist]) {
+    from "dist"
+    from ("sql") {
+        into "sql"
+    }
+    from ("build") {
+        include ("libs/*.*", "logs", "data")
+    }
+    into ("libs") {
+        from configurations.runtime
+    }
+    into "${baseName}-${version}"
+    includeEmptyDirs true
+}
+
+build.dependsOn buildTar
+
+
+task configure(type: Copy) {
+    ['data', 'config'].each() {
+        mkdir("${it}")
+    };
+    into "config"
+    from ("dist/config") {
+        exclude { file ->
+            (new File(destinationDir, file.path).exists())
+        }
+    }
+}
