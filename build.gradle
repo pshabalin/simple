@@ -79,6 +79,7 @@ task buildTar(type: Tar, dependsOn: [assemble, prepareDist]) {
     }
     into "${baseName}-${version}"
     includeEmptyDirs true
+    destinationDir = file('build')
 }
 
 build.dependsOn buildTar
