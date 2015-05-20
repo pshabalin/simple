@@ -4,6 +4,7 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import config.RepositoryConfig;
 import config.ServletConf;
+import config.SwagerConfig;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
@@ -17,9 +18,6 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.File;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 public class Main {
 
@@ -27,14 +25,17 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
-        Instant starTime = Instant.now();
         configureLogger();
         log.info("Starting web server");
 
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.register(RepositoryConfig.class);
         rootContext.register(ServletConf.class);
+        rootContext.register(SwagerConfig.class);
         ConfigurableEnvironment environment = rootContext.getEnvironment();
+        for (String profile: environment.getActiveProfiles()) {
+            log.debug("Active profile: {}", profile);
+        }
         MutablePropertySources sources = environment.getPropertySources();
         sources.addLast(new ResourcePropertySource("file:config/application.properties"));
 
@@ -50,7 +51,7 @@ public class Main {
         Server server = new Server(8080);
         server.setHandler(contextHandler);
         server.start();
-        log.info("Web Server started in {} seconds", Duration.between(starTime, Instant.now()).get(ChronoUnit.SECONDS));
+        log.info("Done");
         server.join();
     }
 
