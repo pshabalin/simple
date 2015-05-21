@@ -1,5 +1,6 @@
 package rest;
 
+import model.Bean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,14 @@ public class SecurityController {
     @RequestMapping(method = GET, produces = "application/json")
     @ResponseBody
     public String get(HttpSession session) {
-        return session.getId();
+        String beanName = (String) session.getAttribute("bean");
+        if (beanName == null) {
+            beanName = "Bean";
+        } else {
+            beanName += " B";
+        }
+        session.setAttribute("bean", beanName);
+        return beanName;
     }
 
 
