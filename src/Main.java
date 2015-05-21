@@ -2,15 +2,16 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import config.JettyConfig;
 import config.RepositoryConfig;
 import config.ServletConf;
 import config.SwagerConfig;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.io.support.ResourcePropertySource;
@@ -18,41 +19,25 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.File;
+import java.io.IOException;
 
 public class Main {
 
     static final Logger log = LoggerFactory.getLogger(Main.class);
 
-
     public static void main(String[] args) throws Exception {
         configureLogger();
         log.info("Starting web server");
-
-        AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
-        rootContext.register(RepositoryConfig.class);
-        rootContext.register(ServletConf.class);
-        rootContext.register(SwagerConfig.class);
-        ConfigurableEnvironment environment = rootContext.getEnvironment();
-        for (String profile: environment.getActiveProfiles()) {
-            log.debug("Active profile: {}", profile);
+        try {
+            AnnotationConfigApplicationContext rootContext = initRootContext();
+            AnnotationConfigApplicationContext jettyContext = initJettyContext(rootContext);
+            initSpringMvcContext(rootContext, jettyContext);
+            log.info("Initialization completed");
+            jettyContext.getBean(Server.class).join();
+        } catch (Throwable e) {
+            log.error("Can not start server", e);
+            throw e;
         }
-        MutablePropertySources sources = environment.getPropertySources();
-        sources.addLast(new ResourcePropertySource("file:config/application.properties"));
-
-        ServletHolder servletHolder = new ServletHolder("dispatcher", new DispatcherServlet(rootContext));
-
-        ServletHandler handler = new ServletHandler();
-        handler.addServletWithMapping(servletHolder, "/*");
-
-        ServletContextHandler contextHandler = new ServletContextHandler();
-        contextHandler.setContextPath("/");
-        contextHandler.setHandler(handler);
-
-        Server server = new Server(8080);
-        server.setHandler(contextHandler);
-        server.start();
-        log.info("Done");
-        server.join();
     }
 
     private static void configureLogger() {
@@ -73,4 +58,34 @@ public class Main {
         }
         StatusPrinter.printInCaseOfErrorsOrWarnings(context);
     }
-}
+
+
+    private static AnnotationConfigApplicationContext initRootContext() throws IOException {
+        AnnotationConfigApplicationContext rootContext = new AnnotationConfigApplicationContext();
+        rootContext.register(RepositoryConfig.class);
+        ConfigurableEnvironment environment = rootContext.getEnvironment();
+        MutablePropertySources sources = environment.getPropertySources();
+        sources.addLast(new ResourcePropertySource("file:config/application.properties"));
+        rootContext.refresh();
+        return rootContext;
+    }
+
+    private static AnnotationConfigApplicationContext initJettyContext(AnnotationConfigApplicationContext rootContext) {
+        AnnotationConfigApplicationContext jettyContext = new AnnotationConfigApplicationContext();
+        jettyContext.setParent(rootContext);
+        jettyContext.register(JettyConfig.class);
+        jettyContext.refresh();
+        return jettyContext;
+    }
+
+    private static void initSpringMvcContext(AnnotationConfigApplicationContext rootContext, AnnotationConfigApplicationContext jettyContext) {
+        AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
+        applicationContext.setParent(rootContext);
+        applicationContext.register(ServletConf.class);
+        applicationContext.register(SwagerConfig.class);
+
+        ServletHolder servletHolder = new ServletHolder("dispatcher", new DispatcherServlet(applicationContext));
+        jettyContext.getBean(ServletHandler.class).addServletWithMapping(servletHolder, "/*");
+    }
+
+ }
