@@ -49,6 +49,10 @@ dependencies {
     compile 'org.elasticsearch:elasticsearch:1.5.2'
 
 
+    //Messaging
+    compile 'org.apache.activemq:activemq-broker:5.11.1'
+    compile 'org.springframework:spring-jms:' + springVersion
+
     //Utilities
     compile 'com.google.guava:guava:18.0'
 

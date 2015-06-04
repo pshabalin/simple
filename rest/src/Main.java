@@ -6,6 +6,7 @@ import config.JettyConfig;
 import config.RepositoryConfig;
 import config.ServletConf;
 import config.SwagerConfig;
+import messaging.MessagingConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -65,6 +66,7 @@ public class Main {
         AnnotationConfigApplicationContext rootContext = new AnnotationConfigApplicationContext();
         rootContext.register(RepositoryConfig.class);
         rootContext.register(EmbeddedElasticsearchServer.class);
+        rootContext.register(MessagingConfiguration.class);
         ConfigurableEnvironment environment = rootContext.getEnvironment();
         MutablePropertySources sources = environment.getPropertySources();
         sources.addLast(new ResourcePropertySource("file:config/application.properties"));
