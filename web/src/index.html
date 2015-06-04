@@ -1,8 +1,43 @@
 <html>
     <head>
+        <style>
+            #map-canvas {
+                width: 1500px;
+                height:1200px;
+                background-color: #CCC;
+            }
+        </style>
+        <script src="https://maps.googleapis.com/maps/api/js"></script>
+        <script>
+            function initialize() {
+                var mapCanvas = document.getElementById('map-canvas');
+                var mapOptions = {
+                    center: new google.maps.LatLng(38.7403, -77.3463),
+                    zoom: 11,
+                    mapTypeId: google.maps.MapTypeId.TERRAIN
+                };
+                var map = new google.maps.Map(mapCanvas, mapOptions);
+                map.data.loadGeoJson('data.json');
+                var latLng = new google.maps.LatLng(38.7603, -77.3663);
+                var marker = new google.maps.Marker({
+                    position: latLng,
+                    map: map,
+                     draggable:false,
+                     title:"Drag me!"
+                });
+                var x = 38.7603;
+                var y =  -77.3663;
+                setInterval(function () {
+                    x += 0.01;
+                    y += 0.01;
+                    marker.setPosition (new google.maps.LatLng(x, y));
+                }, 3000);
+            }
+            google.maps.event.addDomListener(window, 'load', initialize);
+        </script>
     </head>
     <body>
-        <h1>Hello World</h1>
-
+        <h1>Google Map</h1>
+        <div id="map-canvas"></div>
     </body>
 </html>

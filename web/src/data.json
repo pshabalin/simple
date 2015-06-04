@@ -1,0 +1,41 @@
+{ "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [-77.3463, 38.7403]},
+      "properties": {"prop0": "value0"}
+    },
+    { "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-77.3963, 38.7903],
+          [-77.3063, 38.7903],
+          [-77.3063, 38.7003],
+          [-77.3963, 38.7003]
+        ]
+      },
+      "properties": {
+        "prop0": "value0",
+        "prop1": 0.0
+      }
+    },
+    { "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-77.3963, 38.7903],
+            [-77.3063, 38.7903],
+            [-77.3063, 38.7003],
+            [-77.3963, 38.7003],
+            [-77.3963, 38.7903]
+          ]
+        ]
+      },
+      "properties": {
+        "prop0": "value0",
+        "prop1": {"this": "that"}
+      }
+    }
+  ]
+}

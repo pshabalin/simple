@@ -17,6 +17,7 @@ import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
+import search.EmbeddedElasticsearchServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +64,7 @@ public class Main {
     private static AnnotationConfigApplicationContext initRootContext() throws IOException {
         AnnotationConfigApplicationContext rootContext = new AnnotationConfigApplicationContext();
         rootContext.register(RepositoryConfig.class);
+        rootContext.register(EmbeddedElasticsearchServer.class);
         ConfigurableEnvironment environment = rootContext.getEnvironment();
         MutablePropertySources sources = environment.getPropertySources();
         sources.addLast(new ResourcePropertySource("file:config/application.properties"));
