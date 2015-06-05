@@ -1,0 +1,13 @@
+CREATE TABLE node (
+  id UUID PRIMARY KEY,
+  name VARCHAR(32) NOT NULL,
+  parent UUID,
+  description VARCHAR(2048),
+  created TIMESTAMP,
+  updated TIMESTAMP DEFAULT NULL,
+  type VARCHAR(256),
+  payload CLOB
+);
+
+ALTER TABLE NODE ADD FOREIGN KEY (parent) REFERENCES node(id) ON UPDATE CASCADE ON DELETE CASCADE;
+CREATE UNIQUE INDEX name_idx ON node(name, parent);

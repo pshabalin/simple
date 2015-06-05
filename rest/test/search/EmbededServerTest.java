@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
-@Test(enabled = false)
+@Test(enabled = true)
 public class EmbededServerTest {
 
     private static final Logger log = LoggerFactory.getLogger(EmbededServerTest.class);

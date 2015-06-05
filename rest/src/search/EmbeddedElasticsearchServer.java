@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import javax.annotation.PreDestroy;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
@@ -27,7 +29,7 @@ public class EmbeddedElasticsearchServer {
 
     Node node;
 
-    public EmbeddedElasticsearchServer() throws InterruptedException {
+    EmbeddedElasticsearchServer() throws InterruptedException {
         log.info("Starting Elastic Search Server");
 
         ImmutableSettings.Builder elasticsearchSettings = ImmutableSettings.settingsBuilder()
@@ -47,35 +49,43 @@ public class EmbeddedElasticsearchServer {
                 .build();
         CreateIndexRequest indexRequest = new CreateIndexRequest("twitter", indexSettings);
 
-        Object barrier = new Object();
+        CyclicBarrier barrier = new CyclicBarrier(2);
         node.client().admin().indices().create(indexRequest, new ActionListener<CreateIndexResponse>() {
             @Override
             public void onResponse(CreateIndexResponse createIndexResponse) {
                 log.debug("Index created {}", createIndexResponse.isAcknowledged());
-                synchronized (barrier) {
-                    barrier.notify();
+                try {
+                    barrier.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
             @Override
             public void onFailure(Throwable e) {
                 log.error(e.getMessage(), e);
-                barrier.notify();
+                try {
+                    barrier.await();
+                } catch (InterruptedException | BrokenBarrierException e1) {
+                    throw new RuntimeException(e);
+                }
             }
         });
-        synchronized (barrier) {
-            barrier.wait();
+        try {
+            barrier.await();
+        } catch (BrokenBarrierException e) {
+            throw new RuntimeException(e);
         }
         log.info("Done Starting");
     }
 
     @Bean
-    public Client getClient() {
+    Client getClient() {
         return node.client();
     }
 
     @PreDestroy
-    public void shutdown() {
+    void shutdown() {
         log.info("Shooting down Elastic Search Server");
         node.close();
         log.info("Done");
