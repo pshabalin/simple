@@ -18,8 +18,6 @@ public class V1_3__RepositoryRoot implements SpringJdbcMigration {
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-        //INSERT INTO node(id, type, name, parent, description, created, payload) VALUES (RANDOM_UUID(), '', null, '', CURRENT_TIMESTAMP(), 'model.Root', '{}');
-
         try {
             Root node = new Root();
             node.id = UUID.randomUUID();

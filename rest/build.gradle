@@ -40,7 +40,7 @@ dependencies {
             'ch.qos.logback:logback-core:' + logbackVersion
 
     //Database
-    compile 'com.h2database:h2:1.4.187',
+    compile 'org.postgresql:postgresql:9.4-1201-jdbc41',
             'org.apache.commons:commons-dbcp2:2.1',
             'org.springframework:spring-jdbc:' + springVersion,
             'org.flywaydb:flyway-core:3.2.1'

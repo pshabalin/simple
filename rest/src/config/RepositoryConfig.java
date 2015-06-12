@@ -22,11 +22,19 @@ public class RepositoryConfig {
     @Value("${jdbc.url}")
     String dbUrl;
 
+    @Value("${jdbc.user}")
+    String dbUser;
+
+    @Value("${jdbc.password}")
+    String dbPassword;
+
     @Bean
     DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(driverClassName);
         dataSource.setUrl(dbUrl);
+        dataSource.setUsername(dbUser);
+        dataSource.setPassword(dbPassword);
         return dataSource;
     }
 
